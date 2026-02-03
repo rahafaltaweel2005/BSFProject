@@ -1,0 +1,6 @@
+@BSF_HostAddress = http://localhost:5039
+
+GET {{BSF_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
