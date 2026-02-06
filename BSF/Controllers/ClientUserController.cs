@@ -32,7 +32,16 @@ namespace BSF.Controllers
         public async Task<IActionResult> GetMyAccount()
         {
             var GetClientUserAccount=await _clientUserService.GetClientUserAccount();
+            return Ok(GetClientUserAccount);
+        }
+         [Authorize(Roles = "User")]
+        [HttpPost("UpdateMyAccount")]
+        public async Task<IActionResult> UpdateMyAccount(ClientUserRegistrationRequest request)
+        {
+            await _clientUserService.UpdateClientUserAccount(request);
             return Ok();
         }
+       
+
     }
 }

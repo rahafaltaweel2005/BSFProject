@@ -47,9 +47,11 @@ namespace Application.Servicess.ServiceProviderServices
                await _ServiceProviderRepo.InsertAsync(serviceProvider);
             await _userRepo.SaveChangesAsync();
         }
-        public async Task RegistrationValidation(ServiceProviderRegistrationRequest request)
+        public async Task RegistrationValidation(ServiceProviderRegistrationRequest request , int? id=null)
         {
-            var isEmailExist = await _userRepo.GetAll().AnyAsync(u => u.Email == request.Email);
+            if (id == null)
+            {
+               var isEmailExist = await _userRepo.GetAll().AnyAsync(u => u.Email == request.Email);
             if (isEmailExist)
             {
                 throw new Exception("Email already exists");
@@ -59,6 +61,21 @@ namespace Application.Servicess.ServiceProviderServices
             {
                 throw new Exception("Phone number already exists");
             }
+            }
+            else
+            {
+                var isEmailExist = await _userRepo.GetAll().AnyAsync(u => u.Email == request.Email&& u.Id !=id);
+            if (isEmailExist)
+            {
+                throw new Exception("Email already exists");
+            }
+            var isPhonrNumberExist = await _userRepo.GetAll().AnyAsync(u => u.PhoneNumber == request.PhoneNumber && u.Id !=id);
+            if (isPhonrNumberExist)
+            {
+                throw new Exception("Phone number already exists");
+            }
+            }
+            
         }
 
         public async Task<GetServiceProviderAccountResponse> GetServiceProviderAccount()
@@ -78,6 +95,23 @@ namespace Application.Servicess.ServiceProviderServices
                 ServiceCategoryId = serviceProvider.ServiceCategoryId
             };
             return response;
+        }
+
+        public async Task UpdateServiceProviderAccount(ServiceProviderRegistrationRequest request)
+        {
+            var userId=_currentUserService.UserId;
+            await RegistrationValidation(request, userId);
+            var serviceProvider =await _ServiceProviderRepo.GetAll().Include(sp=>sp.User).FirstOrDefaultAsync(sp=>sp.UserId==userId);
+            if (serviceProvider == null)           
+             {
+                throw new Exception("Service provider not found");
+        }
+            serviceProvider.User.Name = request.Name;
+            serviceProvider.User.Email = request.Email;
+            serviceProvider.User.PhoneNumber = request.PhoneNumber;
+            serviceProvider.ServiceCategoryId = request.ServiceCategoryId;
+            _ServiceProviderRepo.Update(serviceProvider);
+            await _ServiceProviderRepo.SaveChangesAsync();
         }
     }
 }

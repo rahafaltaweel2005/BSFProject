@@ -31,6 +31,13 @@ namespace BSF.Controllers
         public async Task<IActionResult> GetMyAccount()
         {
             var GetServiceProviderAccount=await _serviceProviderService.GetServiceProviderAccount();
+            return Ok(GetServiceProviderAccount);
+        }
+        [Authorize(Roles ="ServiceProvider")]
+        [HttpPost("UpdateMyAccount")]
+        public async Task<IActionResult> UpdateMyAccount(ServiceProviderRegistrationRequest request)
+        {
+            await _serviceProviderService.UpdateServiceProviderAccount(request);
             return Ok();
         }
     }

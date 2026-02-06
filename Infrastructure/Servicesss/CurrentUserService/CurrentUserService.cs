@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Application.Servicess.CurrentUserService;
 using Microsoft.AspNetCore.Http;
 
@@ -14,7 +15,7 @@ namespace Infrastructure.Servicesss.CurrentUserService
         {
             get
             {
-               return Convert.ToInt32(_httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == "id")?.Value);   
+                 return Convert.ToInt32(_httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             }
         }
 
