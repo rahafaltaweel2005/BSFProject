@@ -37,7 +37,7 @@ namespace BSF.Controllers
             return Ok(newAccessToken);
         }
         [HttpPost("ChangeMyPassword")]
-        public async Task<IActionResult> ChangeMyPassword(ChangeMyPasswordRequest request)
+        public async Task<IActionResult> ChangeMyPassword([FromBody] ChangeMyPasswordRequest request)
         {
             await _authService.ChangeMyPasswoerd(request);
             return Ok();

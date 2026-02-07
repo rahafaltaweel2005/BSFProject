@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Application.Servicess.CurrentUserService;
+using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 
 namespace Infrastructure.Servicesss.CurrentUserService
@@ -18,7 +19,13 @@ namespace Infrastructure.Servicesss.CurrentUserService
                  return Convert.ToInt32(_httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             }
         }
-
+     public int? ServiceProviderId
+        {
+            get
+            {
+                return Convert.ToInt32(_httpContextAccessor.HttpContext?.User.FindFirst("ServiceProviderId")?.Value);
+            }
+        }
         public string? Name
         {
             get
@@ -48,5 +55,7 @@ namespace Infrastructure.Servicesss.CurrentUserService
                 return _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == "role")?.Value;
             }
         }
+
+
     }
 }

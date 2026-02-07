@@ -15,13 +15,13 @@ namespace BSF.Controllers
     public class ServiceProviderController : ControllerBase
     {
         private readonly IServiceProviderService _serviceProviderService;
-        public ServiceProviderController(IServiceProviderService serviceProviderService)
+        public ServiceProviderController([FromBody] IServiceProviderService serviceProviderService)
         {
             _serviceProviderService = serviceProviderService;
         }
         [AllowAnonymous]
         [HttpPost("Register")]
-        public async Task<IActionResult> RegisterServiceProvider(ServiceProviderRegistrationRequest request)
+        public async Task<IActionResult> RegisterServiceProvider([FromBody] ServiceProviderRegistrationRequest request)
         {
             await _serviceProviderService.ServiceProviderRegistration(request);
             return Ok();
@@ -34,8 +34,8 @@ namespace BSF.Controllers
             return Ok(GetServiceProviderAccount);
         }
         [Authorize(Roles ="ServiceProvider")]
-        [HttpPost("UpdateMyAccount")]
-        public async Task<IActionResult> UpdateMyAccount(ServiceProviderRegistrationRequest request)
+        [HttpPost("UpdateServiceProviderAccount")]
+        public async Task<IActionResult> UpdateServiceProviderAccount([FromBody] ServiceProviderRegistrationRequest request)
         {
             await _serviceProviderService.UpdateServiceProviderAccount(request);
             return Ok();

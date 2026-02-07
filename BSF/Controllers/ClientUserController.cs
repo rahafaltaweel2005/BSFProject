@@ -36,7 +36,7 @@ namespace BSF.Controllers
         }
          [Authorize(Roles = "User")]
         [HttpPost("UpdateMyAccount")]
-        public async Task<IActionResult> UpdateMyAccount(ClientUserRegistrationRequest request)
+        public async Task<IActionResult> UpdateMyAccount([FromBody] ClientUserRegistrationRequest request)
         {
             await _clientUserService.UpdateClientUserAccount(request);
             return Ok();

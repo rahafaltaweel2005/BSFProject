@@ -1,6 +1,7 @@
 using System.Text;
 using Application.Repositories;
 using Application.Sarvices.AuthService;
+using Application.Services.Service;
 using Application.Servicess.ClientUserService;
 using Application.Servicess.CurrentUserService;
 using Application.Servicess.LookupService;
@@ -76,6 +77,9 @@ builder.Services.AddScoped(typeof(ICurrentUserService),typeof(CurrentUserService
 builder.Services.AddScoped(typeof(IServiceProviderService),typeof(ServiceProviderService));
 builder.Services.AddScoped(typeof(ILookupService), typeof(LookupService));
 builder.Services.AddScoped(typeof(IClientUserService), typeof(ClientUserService));
+builder.Services.AddScoped(typeof(IServicesService), typeof(ServicesService));
+
+
 
 
 

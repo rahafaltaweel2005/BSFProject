@@ -24,7 +24,7 @@ namespace Infrastructure.Repositories{
         public void Update(T entity){
             _dbSet.Update(entity);
         }
-        public void  Remove(T entity){
+        public void  Delete(T entity){
             _dbSet.Remove(entity);
         }
         public async Task<int> SaveChangesAsync(){

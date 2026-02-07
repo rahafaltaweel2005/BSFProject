@@ -100,15 +100,18 @@ namespace Application.Servicess.ServiceProviderServices
         public async Task UpdateServiceProviderAccount(ServiceProviderRegistrationRequest request)
         {
             var userId=_currentUserService.UserId;
-            await RegistrationValidation(request, userId);
+            await RegistrationValidation(request, userId.Value);
+            var user=await _userRepo.GetBYIdAsync(userId.Value);
             var serviceProvider =await _ServiceProviderRepo.GetAll().Include(sp=>sp.User).FirstOrDefaultAsync(sp=>sp.UserId==userId);
             if (serviceProvider == null)           
              {
                 throw new Exception("Service provider not found");
         }
-            serviceProvider.User.Name = request.Name;
-            serviceProvider.User.Email = request.Email;
-            serviceProvider.User.PhoneNumber = request.PhoneNumber;
+            user.Name = request.Name;
+            user.Email = request.Email;
+            user.PhoneNumber = request.PhoneNumber;
+              _userRepo.Update(user);
+            await _userRepo.SaveChangesAsync();
             serviceProvider.ServiceCategoryId = request.ServiceCategoryId;
             _ServiceProviderRepo.Update(serviceProvider);
             await _ServiceProviderRepo.SaveChangesAsync();

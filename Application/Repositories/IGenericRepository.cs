@@ -6,7 +6,7 @@ namespace Application.Repositories{
         IQueryable<T> GetAll();
         Task InsertAsync(T entity);
         void Update(T entity);
-        void Remove(T entity);
+        void Delete(T entity);
 
         Task<int> SaveChangesAsync();
         Task<IEnumerable<object>> GetAllAsync();

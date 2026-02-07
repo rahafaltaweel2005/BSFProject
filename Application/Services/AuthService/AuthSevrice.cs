@@ -18,12 +18,14 @@ namespace Application.Sarvices.AuthService
         private readonly ICurrentUserService _currentUserService;
         private readonly IGenericRepository<User> _userRepository;
         private readonly IGenericRepository<RefershToken> _refershTokenRepository;
-        public AuthService(IGenericRepository<User> userRepository, IGenericRepository<RefershToken> refershTokenRepository, IConfiguration config , ICurrentUserService currentUserService)
+        private readonly IGenericRepository<ServiceProvider> _serviceProviderRepository;
+        public AuthService(IGenericRepository<User> userRepository, IGenericRepository<RefershToken> refershTokenRepository, IConfiguration config , ICurrentUserService currentUserService,IGenericRepository<ServiceProvider> serviceProviderRepository)
         {
             _userRepository = userRepository;
             _refershTokenRepository = refershTokenRepository;
             _config = config;
             _currentUserService = currentUserService;
+            _serviceProviderRepository = serviceProviderRepository;
         }
         public async Task<LoginResponse> Login(LoginRequest request)
         {
@@ -81,6 +83,13 @@ namespace Application.Sarvices.AuthService
                 new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
                 new Claim(ClaimTypes.Role, user.Role.Name),
             };
+            var serviceProvider = await _serviceProviderRepository.GetAll().FirstOrDefaultAsync(sp=>sp.UserId==user.Id);
+            if(serviceProvider != null)
+            {
+                claims.Add(new Claim("ServiceProviderId", serviceProvider.Id.ToString()));
+            }
+            
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
