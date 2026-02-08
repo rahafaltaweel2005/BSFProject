@@ -1,4 +1,4 @@
-using Application.Servicess.AuthService.DTOs;
+using Application.Services.AuthService.DTOs;
 
 namespace Application.Sarvices.AuthService
 {

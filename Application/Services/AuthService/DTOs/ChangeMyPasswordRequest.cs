@@ -1,4 +1,4 @@
-namespace Application.Servicess.AuthService.DTOs
+namespace Application.Services.AuthService.DTOs
 {
     public class ChangeMyPasswordRequest
     {

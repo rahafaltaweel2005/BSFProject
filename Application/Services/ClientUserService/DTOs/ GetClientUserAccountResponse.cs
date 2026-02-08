@@ -1,4 +1,4 @@
-namespace Application.Servicess.ClientUserService.DTOs
+namespace Application.Services.ClientUserService.DTOs
 {
     public class GetClientUserAccountResponse
     {

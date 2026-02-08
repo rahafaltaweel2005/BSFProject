@@ -11,6 +11,7 @@ namespace Application.Services.Service
         Task UpdateService(int id ,SaveServiceRequest request);
         Task DeleteService(int id);
         Task<PaginationResponse<GetServicesResponse>> GetAllServices(PaginationRequest request);
+        Task<PaginationResponse<GetServicesResponse>> GetServicesbyCategory(PaginationRequest request);
 
 
     }

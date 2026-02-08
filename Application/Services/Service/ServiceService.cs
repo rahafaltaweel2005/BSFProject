@@ -3,8 +3,8 @@ using System.Security.Cryptography;
 using Application.Generic_DTOs;
 using Application.Repositories;
 using Application.Services.Service.DTOs;
-using Application.Servicess.CurrentUserService;
-using Application.Servicess.LookupService;
+using Application.Services.CurrentUserService;
+using Application.Services.LookupService;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -16,7 +16,7 @@ namespace Application.Services.Service
         private readonly IGenericRepository<Domain.Entities.Service> _serviceRepository;
         private readonly ICurrentUserService _currentUserService;
         private readonly IGenericRepository<ServiceProvider> _serviceProvider;
-                public ServicesService(IGenericRepository<Domain.Entities.Service> serviceRepository, ICurrentUserService currentUserService,IGenericRepository<ServiceProvider> _serviceProvider)
+        public ServicesService(IGenericRepository<Domain.Entities.Service> serviceRepository, ICurrentUserService currentUserService, IGenericRepository<ServiceProvider> _serviceProvider)
         {
             _serviceRepository = serviceRepository;
             _currentUserService = currentUserService;
@@ -39,58 +39,76 @@ namespace Application.Services.Service
 
         public async Task DeleteService(int id)
         {
-             var service = await _serviceRepository.GetBYIdAsync(id);
-             if(service == null)
-             {
+            var service = await _serviceRepository.GetBYIdAsync(id);
+            if (service == null)
+            {
                 throw new Exception("Service not exsits");
-             }
-                _serviceRepository.Delete(service);
-                await _serviceRepository.SaveChangesAsync();
+            }
+            _serviceRepository.Delete(service);
+            await _serviceRepository.SaveChangesAsync();
         }
 
         public async Task<PaginationResponse<GetServicesResponse>> GetAllServices(PaginationRequest request)
         {
-                var querey = _serviceRepository.GetAll().Include(x=>x.ServiceProvider).OrderByDescending(x=>x.Id)
-                .Where(x=>x.ServiceProvider.ServiceCategoryId ==request.CategoryId.Value)
-                .Skip(request.PageSize*request.PageIndex).Take(request.PageSize);
-                 var count =await  querey.CountAsync();
-                var result =await querey.Select( x=> new GetServicesResponse
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Description = x.Description,
-                    Price = x.Price,
-                    Duration = x.Duration
-
-                }).ToListAsync();
-                return new PaginationResponse<GetServicesResponse>
-                {
-                    Item = result,
-                     Count = count
-                };
-                }
-
-            public async Task<PaginationResponse<GetServicesResponse>> GetMyServices(PaginationRequest request)
+            var querey = _serviceRepository.GetAll().Include(x => x.ServiceProvider).OrderByDescending(x => x.Id)
+            .Where(x => x.ServiceProvider.ServiceCategoryId == request.CategoryId.Value)
+            .Skip(request.PageSize * request.PageIndex).Take(request.PageSize);
+            var count = await querey.CountAsync();
+            var result = await querey.Select(x => new GetServicesResponse
             {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                Price = x.Price,
+                Duration = x.Duration
+
+            }).ToListAsync();
+            return new PaginationResponse<GetServicesResponse>
+            {
+                Item = result,
+                Count = count
+            };
+        }
+        public async Task<PaginationResponse<GetServicesResponse>> GetServicesbyCategory(PaginationRequest request)
+        {
+            var querey = _serviceRepository.GetAll().Where(x => x.ServiceProvider.ServiceCategoryId == request.CategoryId && x.ServiceProvider.IsAvailable )
+            .Include(x => x.ServiceProvider).OrderBy(x => x.Id)
+            .Skip(request.PageSize * request.PageIndex).Take(request.PageSize);
+            var count = await querey.CountAsync();
+            var result = await querey.Select(x => new GetServicesResponse
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                Price = x.Price,
+                Duration = x.Duration
+            }).ToListAsync();
+            return new PaginationResponse<GetServicesResponse>
+            {
+                Item = result,
+                Count = count
+            };
+        }
+
+        public async Task<PaginationResponse<GetServicesResponse>> GetMyServices(PaginationRequest request)
+        {
             var ServiceProviderId = _currentUserService.ServiceProviderId.Value;
-                var querey = _serviceRepository.GetAll().OrderByDescending(x=>x.Id)
-                .Where(x=>x.ServiceProviderId == ServiceProviderId)
-                .Skip(request.PageSize*request.PageIndex).Take(request.PageSize);
-                var count = await querey.CountAsync();
-                var result =await querey.Select( x=> new GetServicesResponse
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Description = x.Description,
-                    Price = x.Price,
-                    Duration = x.Duration
-                }).ToListAsync();
-                return new PaginationResponse<GetServicesResponse>
-                {
-                    Item = result,
-                    Count = count
-                };
-                
+            var querey = _serviceRepository.GetAll() .Where(x => x.ServiceProviderId == ServiceProviderId).OrderByDescending(x => x.Id);
+            var count = await querey.CountAsync();
+            var result = await querey.Skip(request.PageSize * request.PageIndex).Take(request.PageSize).Select(x => new GetServicesResponse
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                Price = x.Price,
+                Duration = x.Duration
+            }).ToListAsync();
+            return new PaginationResponse<GetServicesResponse>
+            {
+                Item = result,
+                Count = count
+            };
+
         }
 
         public async Task UpdateService(int id, SaveServiceRequest request)

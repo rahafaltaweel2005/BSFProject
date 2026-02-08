@@ -1,6 +1,6 @@
 using Domain.Enums;
 
-namespace Application.Servicess.LookupService
+namespace Application.Services.LookupService
 {
     public class GetLookupResponse
     {

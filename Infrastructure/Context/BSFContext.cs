@@ -10,7 +10,7 @@ namespace Infrastructure.Context
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        { 
+        {
 
             var relationShips = modelBuilder.Model
                 .GetEntityTypes().SelectMany(e => e.GetForeignKeys());
@@ -47,5 +47,10 @@ namespace Infrastructure.Context
         public DbSet<ServiceCategory> ServiceCategories { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<Order> Orders { get; set; }
-         }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Chat> chats { get; set; }
+         public DbSet<ChatMessage> ChatMessages { get; set; }
+
+
+    }
 }

@@ -1,5 +1,5 @@
 using Application.Sarvices.AuthService;
-using Application.Servicess.AuthService.DTOs;
+using Application.Services.AuthService.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

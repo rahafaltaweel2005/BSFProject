@@ -1,6 +1,6 @@
-using Application.Servicess.ClientUserService.DTOs;
+using Application.Services.ClientUserService.DTOs;
 
-namespace Application.Servicess.ClientUserService
+namespace Application.Services.ClientUserService
 {
     public interface IClientUserService
     {

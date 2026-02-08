@@ -1,15 +1,15 @@
 
 using Application.Repositories;
-using Application.Servicess.ClientUserService.DTOs;
-using Application.Servicess.CurrentUserService;
+using Application.Services.ClientUserService.DTOs;
+using Application.Services.CurrentUserService;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.Servicess.ClientUserService
+namespace Application.Services.ClientUserService
 {
-    public class ClientUserService : IClientUserService
+    public class ClientUserService: IClientUserService
     {
         private readonly IGenericRepository<ClientUser> _clientUserRepo;
         private readonly IGenericRepository<Role> _roleRepo;

@@ -1,4 +1,4 @@
-namespace Application.Servicess.LookupService
+namespace Application.Services.LookupService
 {
     public interface ILookupService
     {

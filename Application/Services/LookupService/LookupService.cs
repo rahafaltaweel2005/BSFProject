@@ -3,7 +3,7 @@ using Application.Repositories;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.Servicess.LookupService
+namespace Application.Services.LookupService
 {
     public class LookupService : ILookupService
     {

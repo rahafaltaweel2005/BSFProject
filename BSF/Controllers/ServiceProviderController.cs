@@ -1,6 +1,5 @@
-
-using Application.Servicess.ServiceProviderService.DTOs;
-using Application.Servicess.ServiceProviderServices;
+using Application.Services.ServiceProviderService.DTOs;
+using Application.Services.ServiceProviderServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Mvc;

@@ -1,13 +1,13 @@
 using Application.Repositories;
 using Application.Services.ServiceProviderService.DTOs;
-using Application.Servicess.CurrentUserService;
-using Application.Servicess.ServiceProviderService.DTOs;
+using Application.Services.CurrentUserService;
+using Application.Services.ServiceProviderService.DTOs;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.Servicess.ServiceProviderServices
+namespace Application.Services.ServiceProviderServices
 {
     public class ServiceProviderService : IServiceProviderService
     {
@@ -42,7 +42,8 @@ namespace Application.Servicess.ServiceProviderServices
             var serviceProvider = new ServiceProvider
             {
                 UserId = user.Id,
-                ServiceCategoryId = request.ServiceCategoryId
+                ServiceCategoryId = request.ServiceCategoryId,
+                IsAvailable=false
             };
                await _ServiceProviderRepo.InsertAsync(serviceProvider);
             await _userRepo.SaveChangesAsync();
@@ -92,7 +93,8 @@ namespace Application.Servicess.ServiceProviderServices
                 Name = serviceProvider.User.Name,
                 Email = serviceProvider.User.Email,
                 PhoneNumber = serviceProvider.User.PhoneNumber,
-                ServiceCategoryId = serviceProvider.ServiceCategoryId
+                ServiceCategoryId = serviceProvider.ServiceCategoryId,
+                IsAvailable= serviceProvider.IsAvailable
             };
             return response;
         }
@@ -113,6 +115,7 @@ namespace Application.Servicess.ServiceProviderServices
               _userRepo.Update(user);
             await _userRepo.SaveChangesAsync();
             serviceProvider.ServiceCategoryId = request.ServiceCategoryId;
+            serviceProvider.IsAvailable = request.IsAvailable;
             _ServiceProviderRepo.Update(serviceProvider);
             await _ServiceProviderRepo.SaveChangesAsync();
         }

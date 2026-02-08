@@ -1,6 +1,6 @@
 
-using Application.Servicess.ClientUserService;
-using Application.Servicess.ClientUserService.DTOs;
+using Application.Services.ClientUserService;
+using Application.Services.ClientUserService.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Mvc;

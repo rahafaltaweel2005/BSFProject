@@ -3,8 +3,8 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Application.Repositories;
-using Application.Servicess.AuthService.DTOs;
-using Application.Servicess.CurrentUserService;
+using Application.Services.AuthService.DTOs;
+using Application.Services.CurrentUserService;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,13 +19,16 @@ namespace Application.Sarvices.AuthService
         private readonly IGenericRepository<User> _userRepository;
         private readonly IGenericRepository<RefershToken> _refershTokenRepository;
         private readonly IGenericRepository<ServiceProvider> _serviceProviderRepository;
-        public AuthService(IGenericRepository<User> userRepository, IGenericRepository<RefershToken> refershTokenRepository, IConfiguration config , ICurrentUserService currentUserService,IGenericRepository<ServiceProvider> serviceProviderRepository)
+        private readonly IGenericRepository<ClientUser> _clientUserRepository;
+
+                public AuthService(IGenericRepository<User> userRepository, IGenericRepository<RefershToken> refershTokenRepository, IConfiguration config , ICurrentUserService currentUserService,IGenericRepository<ServiceProvider> serviceProviderRepository,IGenericRepository<ClientUser> clientUserRepository)
         {
             _userRepository = userRepository;
             _refershTokenRepository = refershTokenRepository;
             _config = config;
             _currentUserService = currentUserService;
             _serviceProviderRepository = serviceProviderRepository;
+            _clientUserRepository=clientUserRepository;
         }
         public async Task<LoginResponse> Login(LoginRequest request)
         {
@@ -88,6 +91,15 @@ namespace Application.Sarvices.AuthService
             {
                 claims.Add(new Claim("ServiceProviderId", serviceProvider.Id.ToString()));
             }
+            else
+            {       
+            var clientUser = await _clientUserRepository.GetAll().FirstOrDefaultAsync(x => x.UserId == user.Id);
+                if (clientUser != null)
+                {
+                    claims.Add(new Claim("clientUserId", clientUser.Id.ToString()));
+                }
+
+            }
             
 
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -125,6 +137,7 @@ namespace Application.Sarvices.AuthService
                 throw new ArgumentException("New password and confirmation do not match");
             }
             user.Password = passwordHasher.HashPassword(user, request.NewPassword);
+            await _userRepository.SaveChangesAsync();
         }
     }
 }

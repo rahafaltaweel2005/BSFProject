@@ -1,7 +1,7 @@
 using Application.Services.ServiceProviderService.DTOs;
-using Application.Servicess.ServiceProviderService.DTOs;
+using Application.Services.ServiceProviderService.DTOs;
 
-namespace Application.Servicess.ServiceProviderServices
+namespace Application.Services.ServiceProviderServices
 {
     public interface IServiceProviderService
     {

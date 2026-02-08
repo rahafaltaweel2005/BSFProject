@@ -7,5 +7,6 @@ namespace Application.Services.ServiceProviderService.DTOs
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public int ServiceCategoryId { get; set; }
+        public bool  IsAvailable{ get; set; }
     }
 }

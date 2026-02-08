@@ -1,4 +1,4 @@
-using Application.Servicess.LookupService;
+using Application.Services.LookupService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Mvc;

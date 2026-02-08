@@ -2,10 +2,10 @@ using System.Text;
 using Application.Repositories;
 using Application.Sarvices.AuthService;
 using Application.Services.Service;
-using Application.Servicess.ClientUserService;
-using Application.Servicess.CurrentUserService;
-using Application.Servicess.LookupService;
-using Application.Servicess.ServiceProviderServices;
+using Application.Services.ClientUserService;
+using Application.Services.CurrentUserService;
+using Application.Services.LookupService;
+using Application.Services.ServiceProviderServices;
 using Infrastructure.Context;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Application.Services.OrderService;
+using Application.Services.NotificationService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +80,11 @@ builder.Services.AddScoped(typeof(IServiceProviderService),typeof(ServiceProvide
 builder.Services.AddScoped(typeof(ILookupService), typeof(LookupService));
 builder.Services.AddScoped(typeof(IClientUserService), typeof(ClientUserService));
 builder.Services.AddScoped(typeof(IServicesService), typeof(ServicesService));
+builder.Services.AddScoped(typeof(IOrderService), typeof(OrderService));
+builder.Services.AddScoped(typeof(INotificationService), typeof(NotificationService));
+
+
+
 
 
 
