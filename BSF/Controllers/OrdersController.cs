@@ -1,4 +1,5 @@
 using Application.Generic_DTOs;
+using Application.Services.ClientUserService.DTOs;
 using Application.Services.OrderService;
 using Application.Services.OrderService.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -24,14 +25,14 @@ namespace BSF.Controllers
         }
         [Authorize(Roles = "User")]
         [HttpPost("ClientUserOrders")]
-        public async Task<IActionResult> GetClientUserOrders([FromBody] PaginationRequest request)
+        public async Task<IActionResult> GetClientUserOrders([FromBody] GetClientUserOrderRequest request)
         {
             var response = await _orderService.GetClientUserOrders(request);
             return Ok(response);
         }
         [Authorize(Roles = "ServiceProvider")]
         [HttpPost("ServiceProviderOrders")]
-        public async Task<IActionResult> GetServiceProviderOrders([FromBody] PaginationRequest request)
+        public async Task<IActionResult> GetServiceProviderOrders([FromBody] GetClientUserOrderRequest request)
         {
             var response = await _orderService.GetServiceProviderOrders(request);
             return Ok(response);

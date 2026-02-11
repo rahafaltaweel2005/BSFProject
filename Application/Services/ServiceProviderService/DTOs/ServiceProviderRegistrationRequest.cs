@@ -7,6 +7,6 @@ namespace Application.Services.ServiceProviderService.DTOs
         public string PhoneNumber { get; set; }
         public string Password { get; set; }
         public int ServiceCategoryId { get; set; }
-        public bool IsAvailable { get; set; }
+
     }
 }

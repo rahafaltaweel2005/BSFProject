@@ -4,6 +4,7 @@ using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(BSFContext))]
-    partial class BSFContextModelSnapshot : ModelSnapshot
+    [Migration("20260210010448_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,6 +65,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("FirstUserId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
 
@@ -69,19 +75,16 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ReciverId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SenderId")
+                    b.Property<int>("SecondUserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ChatId");
 
-                    b.HasIndex("ReciverId");
+                    b.HasIndex("FirstUserId");
 
-                    b.HasIndex("SenderId");
+                    b.HasIndex("SecondUserId");
 
                     b.ToTable("ChatMessages");
                 });
@@ -398,9 +401,6 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PersonalPhoto")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -443,23 +443,23 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.User", "Reciver")
+                    b.HasOne("Domain.Entities.User", "FirstUser")
                         .WithMany()
-                        .HasForeignKey("ReciverId")
+                        .HasForeignKey("FirstUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.User", "Sender")
+                    b.HasOne("Domain.Entities.User", "SecondUser")
                         .WithMany()
-                        .HasForeignKey("SenderId")
+                        .HasForeignKey("SecondUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Chat");
 
-                    b.Navigation("Reciver");
+                    b.Navigation("FirstUser");
 
-                    b.Navigation("Sender");
+                    b.Navigation("SecondUser");
                 });
 
             modelBuilder.Entity("Domain.Entities.ClientUser", b =>

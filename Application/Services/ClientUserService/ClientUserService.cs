@@ -2,6 +2,7 @@
 using Application.Repositories;
 using Application.Services.ClientUserService.DTOs;
 using Application.Services.CurrentUserService;
+using Application.Services.FileService;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
@@ -15,12 +16,15 @@ namespace Application.Services.ClientUserService
         private readonly IGenericRepository<Role> _roleRepo;
         private readonly IGenericRepository<User> _userRepo;
         private readonly ICurrentUserService _currentUserService;
-        public ClientUserService(IGenericRepository<ClientUser> clientUserRepo, IGenericRepository<Role> roleRepo, IGenericRepository<User> userRepo, ICurrentUserService currentUserService)
+        
+        private readonly IFileService _fileService;
+        public ClientUserService(IGenericRepository<ClientUser> clientUserRepo, IGenericRepository<Role> roleRepo, IGenericRepository<User> userRepo, ICurrentUserService currentUserService,IFileService fileService)
         {
             _clientUserRepo = clientUserRepo;
             _roleRepo = roleRepo;
             _userRepo = userRepo;
             _currentUserService = currentUserService;
+            _fileService=fileService;
         }
         public async Task ClientUserRegistration(ClientUserRegistrationRequest request)
         {
@@ -67,6 +71,7 @@ namespace Application.Services.ClientUserService
                 Email = clientUser.User.Email,
                 PhoneNumber = clientUser.User.PhoneNumber,
                 BirthDate = clientUser.BirthDate,
+                PersonalPhoto=clientUser.User.PersonalPhoto
             };
 
             return response;
@@ -77,19 +82,19 @@ namespace Application.Services.ClientUserService
             if (id == null)
             {
                 var isEmailExist = await _userRepo.GetAll().AnyAsync(u => u.Email == request.Email);
-            if (isEmailExist)
-            {
-                throw new Exception("Email already exists");
-            }
-            var isPhonrNumberExist = await _userRepo.GetAll().AnyAsync(u => u.PhoneNumber == request.PhoneNumber);
-            if (isPhonrNumberExist)
-            {
-                throw new Exception("Phone number already exists");
-            }
+                if (isEmailExist)
+                {
+                    throw new Exception("Email already exists");
+                }
+                var isPhonrNumberExist = await _userRepo.GetAll().AnyAsync(u => u.PhoneNumber == request.PhoneNumber);
+                if (isPhonrNumberExist)
+                {
+                    throw new Exception("Phone number already exists");
+                }
             }
             else
             {
-                  var isEmailExist = await _userRepo.GetAll().AnyAsync(u => u.Email == request.Email && u.Id != id.Value);
+                var isEmailExist = await _userRepo.GetAll().AnyAsync(u => u.Email == request.Email && u.Id != id.Value);
             if (isEmailExist)
             {
                 throw new Exception("Email already exists");
@@ -103,12 +108,12 @@ namespace Application.Services.ClientUserService
             
         }
 
-        public async Task UpdateClientUserAccount(ClientUserRegistrationRequest request)
+        public async Task UpdateClientUserAccount(UpdateClientUserRequest request)
         {
             var userId = _currentUserService.UserId;
             await RegistrationValidation(request, userId);
-            var User =await _userRepo.GetBYIdAsync(userId.Value);
-            if(User == null)
+            var user =await _userRepo.GetBYIdAsync(userId.Value);
+            if(user == null)
             {
                 throw new Exception("User not found");
             }
@@ -117,10 +122,19 @@ namespace Application.Services.ClientUserService
             {
                 throw new Exception("Client user not found");
             }
-            User.Name = request.Name;
-            User.Email = request.Email;
-            User.PhoneNumber = request.PhoneNumber;
-            _userRepo.Update(User);
+            user.Name = request.Name;
+            user.Email = request.Email;
+            user.PhoneNumber = request.PhoneNumber;
+             if (request.DeletePhoto)
+            {
+                _fileService.DeleteFile(user.PersonalPhoto);
+            }
+            if (request.PersonalPhoto != null)
+            {
+                _fileService.DeleteFile(user.PersonalPhoto);
+                user.PersonalPhoto= await _fileService.SaveFileAsync(request.PersonalPhoto,"Users");
+            }
+            _userRepo.Update(user);
               await _userRepo.SaveChangesAsync();
             clientUser.BirthDate = request.BirthDate;
             _clientUserRepo.Update(clientUser);

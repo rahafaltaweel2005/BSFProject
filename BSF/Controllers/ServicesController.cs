@@ -19,13 +19,13 @@ namespace BSF.Controllers
             _servicesService = servicesService;
         }
         [HttpPost("CreateService")]
-        public async Task<IActionResult> CreateService([FromBody] SaveServiceRequest request)
+        public async Task<IActionResult> CreateService([FromForm] SaveServiceRequest request)
         {
             await _servicesService.CreateService(request);
             return Ok();
         }
         [HttpPost("UpdateService")]
-        public async Task<IActionResult> UpdateService(int id, [FromBody] SaveServiceRequest request)
+        public async Task<IActionResult> UpdateService(int id, [FromForm] SaveServiceRequest request)
         {
             await _servicesService.UpdateService(id, request);
             return Ok();
@@ -44,14 +44,14 @@ namespace BSF.Controllers
         }
         [AllowAnonymous]
         [HttpPost("GetAllServices")]
-        public async Task<IActionResult> GetAllServices([FromBody] PaginationRequest request)
+        public async Task<IActionResult> GetAllServices([FromBody] GetServicesRequest request)
         {
             var response = await _servicesService.GetAllServices(request);
             return Ok(response);
         }
         [AllowAnonymous]
         [HttpPost("ServicesbyCategory")]
-        public async Task<IActionResult> GetServicesbyCategory([FromBody] PaginationRequest request)
+        public async Task<IActionResult> GetServicesbyCategory([FromBody] GetServicesRequest request)
         {
             var response = await _servicesService.GetServicesbyCategory(request);
             return Ok(response);

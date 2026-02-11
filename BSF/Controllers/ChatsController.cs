@@ -24,14 +24,14 @@ namespace BSF.Controllers
             return Ok();
         }
 
-        [HttpGet("GetUserChats")]
+        [HttpPost("GetUserChats")]
         public async Task<IActionResult> GetUserChats(PaginationRequest request)
         {
             var response = await _chatService.GetUserChats(request);
             return Ok(response);
         }
 
-        [HttpGet("GetMessagesByChatId")]
+        [HttpPost("GetMessagesByChatId")]
         public async Task<IActionResult> GetMessagesByChatId(PaginationRequest request,int chatId)
         {
             var response = await _chatService.GetMessagesByChatId(request,chatId);

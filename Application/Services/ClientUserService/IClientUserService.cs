@@ -6,7 +6,7 @@ namespace Application.Services.ClientUserService
     {
         Task ClientUserRegistration(ClientUserRegistrationRequest request);
         Task <GetClientUserAccountResponse> GetClientUserAccount();
-        Task UpdateClientUserAccount(ClientUserRegistrationRequest request);
+        Task UpdateClientUserAccount(UpdateClientUserRequest request);
 
     }
 }

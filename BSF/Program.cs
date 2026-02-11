@@ -16,6 +16,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Application.Services.OrderService;
 using Application.Services.NotificationService;
+using Application.Services.FileService;
+using Application.Services.ChatService;
+using Application.Hubs;
+using Application.Managers.Chat;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,6 +76,10 @@ builder.Services.AddSwaggerGen(c =>
     };
     c.AddSecurityRequirement(securityReq);
 });
+
+builder.Services.AddSignalR();
+
+
 builder.Services.AddHttpContextAccessor();//
 builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
 builder.Services.AddScoped(typeof(IAuthService),typeof(AuthService));
@@ -82,6 +90,9 @@ builder.Services.AddScoped(typeof(IClientUserService), typeof(ClientUserService)
 builder.Services.AddScoped(typeof(IServicesService), typeof(ServicesService));
 builder.Services.AddScoped(typeof(IOrderService), typeof(OrderService));
 builder.Services.AddScoped(typeof(INotificationService), typeof(NotificationService));
+builder.Services.AddScoped(typeof(IFileService), typeof(FileService));
+builder.Services.AddScoped(typeof(IChatService), typeof(ChatService));
+builder.Services.AddScoped(typeof(IChatConnectionManager), typeof(ChatConnectionManager));
 
 
 
@@ -101,4 +112,5 @@ app.UseHttpsRedirection();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.MapControllers();
+app.MapHub<ChatHub>("/chatHub");
 app.Run();

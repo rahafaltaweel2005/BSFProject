@@ -6,6 +6,7 @@ using Domain.Entities;
 using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Application.Services.FileService;
 
 namespace Application.Services.ServiceProviderServices
 {
@@ -15,12 +16,14 @@ namespace Application.Services.ServiceProviderServices
         private readonly IGenericRepository<User> _userRepo;
         private readonly IGenericRepository<Role> _roleRepo;
         private readonly ICurrentUserService _currentUserService;
-        public ServiceProviderService(IGenericRepository<ServiceProvider> ServiceProviderRepo, IGenericRepository<User> userRepo, IGenericRepository<Role> roleRepo,ICurrentUserService currentUserService)
+        private readonly IFileService _fileService;
+        public ServiceProviderService(IGenericRepository<ServiceProvider> ServiceProviderRepo, IGenericRepository<User> userRepo, IGenericRepository<Role> roleRepo,ICurrentUserService currentUserService,IFileService fileService)
         {
             _ServiceProviderRepo = ServiceProviderRepo;
             _userRepo = userRepo;
             _roleRepo = roleRepo;
             _currentUserService = currentUserService;
+            _fileService=fileService;
         }
 
         public async Task ServiceProviderRegistration(ServiceProviderRegistrationRequest request)
@@ -43,7 +46,7 @@ namespace Application.Services.ServiceProviderServices
             {
                 UserId = user.Id,
                 ServiceCategoryId = request.ServiceCategoryId,
-                IsAvailable=false
+
             };
                await _ServiceProviderRepo.InsertAsync(serviceProvider);
             await _userRepo.SaveChangesAsync();
@@ -99,7 +102,7 @@ namespace Application.Services.ServiceProviderServices
             return response;
         }
 
-        public async Task UpdateServiceProviderAccount(ServiceProviderRegistrationRequest request)
+        public async Task UpdateServiceProviderAccount(UpdateServiceProviderRequest request)
         {
             var userId=_currentUserService.UserId;
             await RegistrationValidation(request, userId.Value);
@@ -116,6 +119,15 @@ namespace Application.Services.ServiceProviderServices
             await _userRepo.SaveChangesAsync();
             serviceProvider.ServiceCategoryId = request.ServiceCategoryId;
             serviceProvider.IsAvailable = request.IsAvailable;
+            if (request.DeletePhoto)
+            {
+                _fileService.DeleteFile(user.PersonalPhoto);
+            }
+            if (request.PersonalPhoto != null)
+            {
+                _fileService.DeleteFile(user.PersonalPhoto);
+                user.PersonalPhoto= await _fileService.SaveFileAsync(request.PersonalPhoto,"Users");
+            }
             _ServiceProviderRepo.Update(serviceProvider);
             await _ServiceProviderRepo.SaveChangesAsync();
         }

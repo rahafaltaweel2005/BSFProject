@@ -10,8 +10,8 @@ namespace Application.Services.Service
         Task CreateService(SaveServiceRequest request);
         Task UpdateService(int id ,SaveServiceRequest request);
         Task DeleteService(int id);
-        Task<PaginationResponse<GetServicesResponse>> GetAllServices(PaginationRequest request);
-        Task<PaginationResponse<GetServicesResponse>> GetServicesbyCategory(PaginationRequest request);
+        Task<PaginationResponse<GetServicesResponse>> GetAllServices(GetServicesRequest request);
+        Task<PaginationResponse<GetServicesResponse>> GetServicesbyCategory(GetServicesRequest request);
 
 
     }

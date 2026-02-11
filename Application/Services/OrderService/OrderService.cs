@@ -5,6 +5,7 @@ using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Application.Generic_DTOs;
+using Application.Services.ClientUserService.DTOs;
 
 namespace Application.Services.OrderService
 {
@@ -22,11 +23,21 @@ namespace Application.Services.OrderService
             _currentUserService = currentUserService;
             _clientUserRepo=clientUserRepo;
         }
-        public async Task<PaginationResponse<GetOrderResponse>> GetClientUserOrders(PaginationRequest request)
+        public async Task<PaginationResponse<GetOrderResponse>> GetClientUserOrders(GetClientUserOrderRequest request)
         {
-            var query = _orderRepo.GetAll().Where(x => x.ClientUserId == _currentUserService.ClientUserId)
-            .OrderByDescending(x=>x.CreatedTime);
-            var count = await query.CountAsync();
+            var query = _orderRepo.GetAll().OrderByDescending(x=>x.CreatedTime)
+            .Where(x => x.ClientUserId == _currentUserService.ClientUserId); 
+            if (!string.IsNullOrEmpty(request.ServiceName))
+            {
+                  request.ServiceName = request.ServiceName.Trim().ToLower();
+                query = query.Where(x => x.Service.Name.Trim().ToLower().Contains(request.ServiceName));
+            }
+            if (!string.IsNullOrEmpty(request.ServiceProviderName))
+            {
+                request.ServiceProviderName = request.ServiceProviderName.Trim().ToLower();
+                query = query.Where(x => x.Service.ServiceProvider.User.Name.Trim().ToLower().Contains(request.ServiceProviderName));
+            }
+             var count = await query.CountAsync();
             var result = await query .Skip(request.PageSize * request.PageIndex).Take(request.PageSize)
             .Include(x => x.Service)
             .ThenInclude(x => x.ServiceProvider).ThenInclude(x => x.User).Select(x => new GetOrderResponse
@@ -46,10 +57,15 @@ namespace Application.Services.OrderService
                 Count = count
             };
         }
-         public async Task<PaginationResponse<GetOrderResponse>> GetServiceProviderOrders(PaginationRequest request)
+         public async Task<PaginationResponse<GetOrderResponse>> GetServiceProviderOrders(GetClientUserOrderRequest request)
         {
-            var query = _orderRepo.GetAll().Where(x => x.ServiceProviderId == _currentUserService.ServiceProviderId)
-            .OrderByDescending(x=>x.CreatedTime);
+            var query = _orderRepo.GetAll().OrderByDescending(x=>x.CreatedTime)
+            .Where(x => x.ServiceProviderId == _currentUserService.ServiceProviderId);
+             if (!string.IsNullOrEmpty(request.ServiceName))
+            {
+                request.ServiceName = request.ServiceName.Trim().ToLower();
+                query = query.Where(x => x.Service.Name.Trim().ToLower().Contains(request.ServiceName));
+            }
             var count =await query.CountAsync();
             var result = await query.Skip(request.PageSize * request.PageIndex).Take(request.PageSize).Include(x => x.Service)
             .ThenInclude(x => x.ServiceProvider).ThenInclude(x => x.User).Select(x => new GetOrderResponse

@@ -22,7 +22,7 @@ namespace BSF.Controllers
         }
         [AllowAnonymous]
         [HttpPost("Register")]
-        public async Task<IActionResult> RegisterClientUser(ClientUserRegistrationRequest request)
+        public async Task<IActionResult> RegisterClientUser([FromBody]ClientUserRegistrationRequest request)
         {
             await _clientUserService.ClientUserRegistration(request);
             return Ok();
@@ -36,7 +36,7 @@ namespace BSF.Controllers
         }
          [Authorize(Roles = "User")]
         [HttpPost("UpdateMyAccount")]
-        public async Task<IActionResult> UpdateMyAccount([FromBody] ClientUserRegistrationRequest request)
+        public async Task<IActionResult> UpdateMyAccount([FromForm] UpdateClientUserRequest request)
         {
             await _clientUserService.UpdateClientUserAccount(request);
             return Ok();

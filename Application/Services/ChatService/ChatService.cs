@@ -1,9 +1,12 @@
 using Application.Generic_DTOs;
+using Application.Hubs;
+using Application.Managers.Chat;
 using Application.Repositories;
 using Application.Services.ChatService.DTOs;
 using Application.Services.CurrentUserService;
 using Domain.Entities;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services.ChatService
@@ -13,12 +16,16 @@ namespace Application.Services.ChatService
         private readonly IGenericRepository<Chat> _chatRepo;
         private readonly IGenericRepository<ChatMessage> _chatMessageRepo;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IHubContext<ChatHub> _hubContext;
+        private readonly IChatConnectionManager _chatConnectionManager;
 
-        public ChatService(IGenericRepository<Chat> chatRepo, IGenericRepository<ChatMessage> chatMessageRepo, ICurrentUserService currentUserService)
+        public ChatService(IGenericRepository<Chat> chatRepo, IGenericRepository<ChatMessage> chatMessageRepo, ICurrentUserService currentUserService, IHubContext<ChatHub> hubContext, IChatConnectionManager chatConnectionManager)
         {
             _chatRepo = chatRepo;
             _chatMessageRepo = chatMessageRepo;
             _currentUserService = currentUserService;
+            _hubContext=hubContext;
+            _chatConnectionManager=chatConnectionManager;
         }
 
         public async Task SendChatMessage(SendChatMessageRequest request)
@@ -46,11 +53,16 @@ namespace Application.Services.ChatService
             var ChatMessage = new ChatMessage
             {
                 ChatId = chat.Id,
-                SecondUserId = UserId,
+                SenderId = UserId,
+                ReciverId = request.RecieverId,
                 IsRead = false,
                 CreatedDate = DateTime.UtcNow,
-                Message = request.Message
+                Message = request.Message,
             };
+            if(_chatConnectionManager.TryGet(ChatMessage.ReciverId.ToString(),out string connectionId))
+            {
+               await _hubContext.Clients.Client(connectionId).SendAsync("newMessage",ChatMessage);
+            }
             await _chatMessageRepo.InsertAsync(ChatMessage);
             await _chatMessageRepo.SaveChangesAsync();
         }
@@ -65,8 +77,10 @@ namespace Application.Services.ChatService
              {
                  Id = x.Id,
                  LastMessage = x.ChatMessages.OrderByDescending(x => x.CreatedDate).FirstOrDefault().Message,
-                 SecondUserId = x.SecondUserId,
-                 SecondUserName = x.SecondUser.Name,
+                FirstUserId = x.FirstUser.Id,
+                    FirstUserName = x.FirstUser.Name,
+                    SecondUserId = x.SecondUser.Id,
+                    SecondUserName = x.SecondUser.Name,
 
              }).ToListAsync();
             return new PaginationResponse<GetChatResponse>
@@ -80,11 +94,14 @@ namespace Application.Services.ChatService
         {
             var query = _chatMessageRepo.GetAll().Where(x => x.ChatId == chatId).OrderByDescending(x => x.CreatedDate);
             var count = await query.CountAsync();
-            var result = await query.Skip(request.PageSize * request.PageIndex).Take(request.PageSize).Select(x => new GetChatMessageResponse
+            var result = await query.Skip(request.PageSize * request.PageIndex).Take(request.PageSize)
+            .Select(x => new GetChatMessageResponse
             {
-                Id = x.Id,
-                FirstUserId = x.FirstUserId,
-                Message = x.Message
+                    Id = x.Id,
+                    SenderId = x.SenderId,
+                    ReciverId = x.ReciverId,
+                    Message = x.Message,
+                    IsRead = x.IsRead,
 
             }).ToListAsync();
             return new PaginationResponse<GetChatMessageResponse>

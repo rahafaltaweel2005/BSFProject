@@ -1,8 +1,10 @@
+using Application.Generic_DTOs;
+
 namespace Application.Services.Service.DTOs
 {
-    public class GetServicesRequest
+    public class GetServicesRequest:PaginationRequest
     {
-    //     public int PageSize { get; set; }=10;
-    //     public int PageIndex { get; set; }=0;
+           public int CategoryId  { get; set; }
+           public string? Name{ get; set; }
     }
 }
