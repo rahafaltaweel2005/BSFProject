@@ -6,6 +6,8 @@ using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Application.Generic_DTOs;
 using Application.Services.ClientUserService.DTOs;
+using Application.Services.NotificationService.DTOs;
+using Application.Services.NotificationService;
 
 namespace Application.Services.OrderService
 {
@@ -15,13 +17,16 @@ namespace Application.Services.OrderService
         private readonly IGenericRepository<Domain.Entities.Service> _serviceRepo;
                 private readonly IGenericRepository<ClientUser> _clientUserRepo;
 
-        private readonly ICurrentUserService _currentUserService;
-        public OrderService(IGenericRepository<Order> orderRepo, IGenericRepository<Domain.Entities.Service> serviceRepo, ICurrentUserService currentUserService,IGenericRepository<ClientUser> clientUserRepo)
+
+         private readonly INotificationService __notificationService;
+          private readonly ICurrentUserService _currentUserService;
+        public OrderService(IGenericRepository<Order> orderRepo, IGenericRepository<Domain.Entities.Service> serviceRepo, ICurrentUserService currentUserService,IGenericRepository<ClientUser> clientUserRepo,INotificationService notificationService)
         {
             _orderRepo = orderRepo;
             _serviceRepo = serviceRepo;
             _currentUserService = currentUserService;
             _clientUserRepo=clientUserRepo;
+            __notificationService=notificationService;
         }
         public async Task<PaginationResponse<GetOrderResponse>> GetClientUserOrders(GetClientUserOrderRequest request)
         {
@@ -120,6 +125,16 @@ namespace Application.Services.OrderService
             };
             await _orderRepo.InsertAsync(order);
             await _orderRepo.SaveChangesAsync();
+            await __notificationService.SendNotification(new CreateNotificationRequest
+            {
+                UserId = service.ServiceProvider.UserId,
+                Title = "New Order Request",
+                Message = $"You have a new order request for service {service.Name}.",
+                Data = new Dictionary<string, string>
+                {
+                    { "{ServiceName}", service.Name },
+                }
+            });
         }
 
         public async Task UpdateOrderStatus(UpdateOrderStatusRequest request)
@@ -139,6 +154,15 @@ namespace Application.Services.OrderService
             }
             _orderRepo.Delete(order);
             await _orderRepo.SaveChangesAsync();
+           await __notificationService.SendNotification(new CreateNotificationRequest
+            {
+                Title = "Delete Order",
+                Message = $"Delete Order successfully",
+                Data = new Dictionary<string, string>
+                {
+                    { "{OrderId}", order.Id.ToString()},
+                }
+            });
         }
 
     }

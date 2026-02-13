@@ -3,6 +3,8 @@ using Application.Repositories;
 using Application.Services.ClientUserService.DTOs;
 using Application.Services.CurrentUserService;
 using Application.Services.FileService;
+using Application.Services.NotificationService;
+using Application.Services.NotificationService.DTOs;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
@@ -16,15 +18,16 @@ namespace Application.Services.ClientUserService
         private readonly IGenericRepository<Role> _roleRepo;
         private readonly IGenericRepository<User> _userRepo;
         private readonly ICurrentUserService _currentUserService;
-        
+        private readonly INotificationService _notificationService;
         private readonly IFileService _fileService;
-        public ClientUserService(IGenericRepository<ClientUser> clientUserRepo, IGenericRepository<Role> roleRepo, IGenericRepository<User> userRepo, ICurrentUserService currentUserService,IFileService fileService)
+        public ClientUserService(IGenericRepository<ClientUser> clientUserRepo, IGenericRepository<Role> roleRepo, IGenericRepository<User> userRepo, ICurrentUserService currentUserService,IFileService fileService, INotificationService notificationService)
         {
             _clientUserRepo = clientUserRepo;
             _roleRepo = roleRepo;
             _userRepo = userRepo;
             _currentUserService = currentUserService;
             _fileService=fileService;
+            _notificationService=notificationService;
         }
         public async Task ClientUserRegistration(ClientUserRegistrationRequest request)
         {
@@ -48,7 +51,16 @@ namespace Application.Services.ClientUserService
             };
             await _clientUserRepo.InsertAsync(ClientUser);
             await _clientUserRepo.SaveChangesAsync();
-
+              await _notificationService.SendNotification(new CreateNotificationRequest
+            {
+                UserId = _currentUserService.UserId.Value,
+                Title = "Account Registration",
+                Message = $"Hi {user.Name}, Account created successfully.",
+                Data = new Dictionary<string, string>
+                {
+                    { "{UserName}", user.Name },
+                }
+            });
         }
 
         public async Task<GetClientUserAccountResponse> GetClientUserAccount()
@@ -139,6 +151,16 @@ namespace Application.Services.ClientUserService
             clientUser.BirthDate = request.BirthDate;
             _clientUserRepo.Update(clientUser);
             await _clientUserRepo.SaveChangesAsync();
+              await _notificationService.SendNotification(new CreateNotificationRequest
+            {
+                UserId = _currentUserService.UserId.Value,
+                Title = "Update Account",
+                Message = $"Hi {user.Name}, Your account has been updated successfully.",
+                Data = new Dictionary<string, string>
+                {
+                    { "{UserName}", user.Name },
+                }
+            });
         }
     }
 }

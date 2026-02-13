@@ -4,6 +4,7 @@ using Application.Services.FirebaseService.DTOs;
 using Domain.Entities;
 using FirebaseAdmin;
 using FirebaseAdmin.Messaging;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services
@@ -16,6 +17,12 @@ namespace Infrastructure.Services
         public FirebaseService(IGenericRepository<FirebaseToken> tokenRepository)
         {
             _tokenRepository = tokenRepository;
+
+        var firebasePath =Path.Combine(AppContext.BaseDirectory , "Firebase","bsfapp-cd90a-firebase-adminsdk-fbsvc-730461c07f.json");
+var firebaseApp = FirebaseApp.Create(new AppOptions()
+{
+    Credential = GoogleCredential.FromFile(firebasePath)
+});
         }
 
         public async Task SendAsync(List<SendFirebaseRequest> requests)

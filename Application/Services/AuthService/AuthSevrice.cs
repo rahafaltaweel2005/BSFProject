@@ -20,8 +20,9 @@ namespace Application.Sarvices.AuthService
         private readonly IGenericRepository<RefershToken> _refershTokenRepository;
         private readonly IGenericRepository<ServiceProvider> _serviceProviderRepository;
         private readonly IGenericRepository<ClientUser> _clientUserRepository;
+         private readonly IGenericRepository<FirebaseToken> _firebaseTokenRepository;
 
-                public AuthService(IGenericRepository<User> userRepository, IGenericRepository<RefershToken> refershTokenRepository, IConfiguration config , ICurrentUserService currentUserService,IGenericRepository<ServiceProvider> serviceProviderRepository,IGenericRepository<ClientUser> clientUserRepository)
+                public AuthService(IGenericRepository<User> userRepository, IGenericRepository<RefershToken> refershTokenRepository, IConfiguration config , ICurrentUserService currentUserService,IGenericRepository<ServiceProvider> serviceProviderRepository,IGenericRepository<ClientUser> clientUserRepository,IGenericRepository<FirebaseToken> firebaseTokenRepository)
         {
             _userRepository = userRepository;
             _refershTokenRepository = refershTokenRepository;
@@ -29,6 +30,7 @@ namespace Application.Sarvices.AuthService
             _currentUserService = currentUserService;
             _serviceProviderRepository = serviceProviderRepository;
             _clientUserRepository=clientUserRepository;
+            _firebaseTokenRepository = firebaseTokenRepository;
         }
         public async Task<LoginResponse> Login(LoginRequest request)
         {
@@ -138,6 +140,25 @@ namespace Application.Sarvices.AuthService
             }
             user.Password = passwordHasher.HashPassword(user, request.NewPassword);
             await _userRepository.SaveChangesAsync();
+        }
+
+         public async Task RegisterFirbaseToken(RegisterFirebaseTokenRequest request)
+        {
+            var userId = _currentUserService.UserId.Value;
+
+            var existingToken = await _firebaseTokenRepository.GetAll()
+                .FirstOrDefaultAsync(t => t.Token == request.Token && t.UserId == userId);
+
+            if (existingToken == null)
+            {
+                var firebaseToken = new FirebaseToken
+                {
+                    UserId = userId,
+                    Token = request.Token
+                };
+                await _firebaseTokenRepository.InsertAsync(firebaseToken);
+                await _firebaseTokenRepository.SaveChangesAsync();
+            }
         }
     }
 }

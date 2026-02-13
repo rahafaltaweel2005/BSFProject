@@ -1,6 +1,8 @@
 using Application.Generic_DTOs;
 using Application.Repositories;
 using Application.Services.CurrentUserService;
+using Application.Services.FirebaseService;
+using Application.Services.FirebaseService.DTOs;
 using Application.Services.NotificationService.DTOs;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -11,11 +13,16 @@ namespace Application.Services.NotificationService
     {
         private readonly IGenericRepository<Notification> _notificationRepo;
         private readonly ICurrentUserService _currentUserService;
+                private readonly IFirebaseService _firebaseService;
+        private readonly IGenericRepository<FirebaseToken> _firebaseTokenRepo;
 
-        public NotificationService(IGenericRepository<Notification> notificationRepo, ICurrentUserService currentUserService)
+
+        public NotificationService(IGenericRepository<Notification> notificationRepo, ICurrentUserService currentUserService,IGenericRepository<FirebaseToken> firebaseTokenRepo,IFirebaseService firebaseService)
         {
             _notificationRepo = notificationRepo;
             _currentUserService = currentUserService;
+            _firebaseTokenRepo=firebaseTokenRepo;
+            _firebaseService=firebaseService;
         }
 
         public async Task<PaginationResponse<GetNotificationResponse>> GetUserNotifications(PaginationRequest request)
@@ -52,6 +59,21 @@ namespace Application.Services.NotificationService
             };
             await _notificationRepo.InsertAsync(Notification);
             await _notificationRepo.SaveChangesAsync();
+             var tokens = await _firebaseTokenRepo.GetAll()
+                .Where(x => x.UserId == request.UserId)
+                .Select(x => x.Token)
+                .ToListAsync();
+
+            await _firebaseService.SendAsync(new List<SendFirebaseRequest>
+             {
+                 new SendFirebaseRequest
+                 {
+                     Tokens = tokens,
+                     Title = request.Title,
+                     Body =  request.Message,
+                     Data = request.Data
+                 }
+             });
         }
 
         public async Task UpdateAllIsReaded()

@@ -20,10 +20,15 @@ using Application.Services.FileService;
 using Application.Services.ChatService;
 using Application.Hubs;
 using Application.Managers.Chat;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using Application.Services.FirebaseService;
+using Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
 builder.Services.AddDbContext<BSFContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"))
 );
@@ -93,6 +98,9 @@ builder.Services.AddScoped(typeof(INotificationService), typeof(NotificationServ
 builder.Services.AddScoped(typeof(IFileService), typeof(FileService));
 builder.Services.AddScoped(typeof(IChatService), typeof(ChatService));
 builder.Services.AddScoped(typeof(IChatConnectionManager), typeof(ChatConnectionManager));
+builder.Services.AddScoped(typeof(IFirebaseService), typeof(FirebaseService));
+
+
 
 
 

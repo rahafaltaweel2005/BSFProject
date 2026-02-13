@@ -7,6 +7,8 @@ using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Application.Services.FileService;
+using Application.Services.NotificationService.DTOs;
+using Application.Services.NotificationService;
 
 namespace Application.Services.ServiceProviderServices
 {
@@ -17,7 +19,8 @@ namespace Application.Services.ServiceProviderServices
         private readonly IGenericRepository<Role> _roleRepo;
         private readonly ICurrentUserService _currentUserService;
         private readonly IFileService _fileService;
-        public ServiceProviderService(IGenericRepository<ServiceProvider> ServiceProviderRepo, IGenericRepository<User> userRepo, IGenericRepository<Role> roleRepo,ICurrentUserService currentUserService,IFileService fileService)
+        private readonly INotificationService __notificationService;
+        public ServiceProviderService(IGenericRepository<ServiceProvider> ServiceProviderRepo, IGenericRepository<User> userRepo, IGenericRepository<Role> roleRepo,ICurrentUserService currentUserService,IFileService fileService,INotificationService __notificationService)
         {
             _ServiceProviderRepo = ServiceProviderRepo;
             _userRepo = userRepo;
@@ -47,9 +50,19 @@ namespace Application.Services.ServiceProviderServices
                 UserId = user.Id,
                 ServiceCategoryId = request.ServiceCategoryId,
 
-            };
+            };   
                await _ServiceProviderRepo.InsertAsync(serviceProvider);
             await _userRepo.SaveChangesAsync();
+             await __notificationService.SendNotification(new CreateNotificationRequest
+            {
+                UserId = _currentUserService.ServiceProviderId.Value,
+                Title = "Account Registration",
+                Message = $"Hi {user.Name}, Account created successfully.",
+                Data = new Dictionary<string, string>
+                {
+                    { "{UserName}", user.Name },
+                }
+            });
         }
         public async Task RegistrationValidation(ServiceProviderRegistrationRequest request , int? id=null)
         {
@@ -130,6 +143,16 @@ namespace Application.Services.ServiceProviderServices
             }
             _ServiceProviderRepo.Update(serviceProvider);
             await _ServiceProviderRepo.SaveChangesAsync();
+              await __notificationService.SendNotification(new CreateNotificationRequest
+            {
+                UserId = _currentUserService.UserId.Value,
+                Title = "Update Account",
+                Message = $"Hi {user.Name}, Your account has been updated successfully.",
+                Data = new Dictionary<string, string>
+                {
+                    { "{UserName}", user.Name },
+                }
+            });
         }
     }
 }

@@ -1,7 +1,9 @@
+
 namespace Application.Services.NotificationService.DTOs
 {
     public class CreateNotificationRequest
     {
+        internal Dictionary<string, string> Data;
 
         public int UserId { get; set; }
         public int? OrderId { get; set; }

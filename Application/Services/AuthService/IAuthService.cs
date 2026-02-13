@@ -7,5 +7,6 @@ namespace Application.Sarvices.AuthService
         Task<LoginResponse> Login(LoginRequest request);
         Task<string> GenerateNewAccessToken(string refershToken);
         Task ChangeMyPasswoerd(ChangeMyPasswordRequest request);
+         Task RegisterFirbaseToken(RegisterFirebaseTokenRequest request);
     }
 }
