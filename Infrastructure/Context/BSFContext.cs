@@ -1,6 +1,5 @@
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-
 namespace Infrastructure.Context
 {
     public class BSFContext : DbContext
@@ -50,7 +49,7 @@ namespace Infrastructure.Context
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Chat> chats { get; set; }
          public DbSet<ChatMessage> ChatMessages { get; set; }
-
+            public DbSet<FirebaseToken> firebaseTokens { get; set; }
 
     }
 }
